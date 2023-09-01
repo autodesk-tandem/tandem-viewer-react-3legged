@@ -5,12 +5,10 @@ type ViewerProps = {
   facility?: Autodesk.Viewing.Private.DtFacility;
   onAppInitialized?: (app: Autodesk.Viewing.Private.DtApp) => void;
   onFacilityLoaded?: (facility: Autodesk.Viewing.Private.DtFacility) => void;
+  onViewerInitialized?: (viewer: Autodesk.Viewing.GuiViewer3D) => void;
+  onViewerUninitialized?: (viewer: Autodesk.Viewing.GuiViewer3D) => void;
 };
 
-/**
- * Viewre component - wraps Tandem viewer.
- * @param {ViewerProps} props Component props
- */
 const Viewer = (props: ViewerProps) => {
   const {
     facility
@@ -32,11 +30,15 @@ const Viewer = (props: ViewerProps) => {
   };
 
   const handleViewerInitialized = (event: any) => {
-
+    if (props.onViewerInitialized) {
+      props.onViewerInitialized(event.target);
+    }
   };
 
   const handleViewerUninitialized = (event: any) => {
-
+    if (props.onViewerUninitialized) {
+      props.onViewerUninitialized(event.target);
+    }
   };
 
   useEffect(() => {
@@ -57,6 +59,7 @@ const Viewer = (props: ViewerProps) => {
         event.target.toolbar.container.style['top'] = '175px';
       });
       viewer.start();
+      // create Tandem application
       const app = new Autodesk.Viewing.Private.DtApp();
       
       appRef.current = app;
@@ -64,6 +67,7 @@ const Viewer = (props: ViewerProps) => {
     }
   }, []);
 
+  // called when facility is updated
   useEffect(() => {
     async function loadFacility(app: Autodesk.Viewing.Private.DtApp, viewer: Autodesk.Viewing.GuiViewer3D, facility: Autodesk.Viewing.Private.DtFacility) {
       const views = await facility.getSavedViewsList();
