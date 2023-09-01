@@ -1,0 +1,65 @@
+button {
+  background: rgb(6, 150, 215);
+  border: solid 1px rgb(26, 150, 215);
+  border-radius: 2px;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  line-height: 16px;
+  margin: 4px;
+  padding: 4px 10px;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 80px;
+  width: 100%;
+}
+
+.header-icon {
+  background-image: url('assets/autodesk-tandem-small-social-400.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 40px;
+  line-height: 80px;
+  margin: 20px;
+  width: 40px;
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 80px;
+}
+
+.header-login {
+  align-self: flex-end;
+  margin: 20px;
+}
+
+.main {
+  display: flex;
+  height: calc(100% - 80px);
+  width: 100%;
+}
+
+.left {
+  height: 100%;
+  width: 200px;
+}
+
+.left > select {
+  width: 180px;
+}
+
+.right {
+  height: 100%;
+  width: calc(100% - 200px);
+}
+
+.viewer-container {
+  height: 100%;
+  width: 100%;
+}
