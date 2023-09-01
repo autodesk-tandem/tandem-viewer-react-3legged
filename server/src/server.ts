@@ -6,7 +6,7 @@ import session from 'express-session';
 const app = express();
 
 app.use(session({
-  secret: '1111111111',
+  secret: 'IX80FvZ2gz',
   cookie: {
     path: '/',
     httpOnly: true,
@@ -92,6 +92,8 @@ async function getToken(clientID: string, clientSecret: string, callbackURL: str
       },
       body: options
     });
+
+  console.debug(`get token: ${response.status}`);
   const result = await response.json();
 
   return result;
