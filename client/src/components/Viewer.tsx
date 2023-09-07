@@ -70,7 +70,7 @@ const Viewer = (props: ViewerProps) => {
   // called when facility is updated
   useEffect(() => {
     async function loadFacility(app: Autodesk.Viewing.Private.DtApp, viewer: Autodesk.Viewing.GuiViewer3D, facility: Autodesk.Viewing.Private.DtFacility) {
-      const views = await facility.getSavedViewsList();
+      const views = await app.view.fetchFacilityViews(facility);
       const view = views.find((v: any) => {
         return v.default;
       });
@@ -78,13 +78,14 @@ const Viewer = (props: ViewerProps) => {
       let models = undefined;
       
       if (view) {
+        // @ts-ignore
         models = new Set<string>(view?.facets?.filters?.models);
       }
       
       const res = await app.displayFacility(facility, models, viewer);
       
       if (view) {
-        await Autodesk.Tandem.DtViewerState.setView(facility, view);
+        await app.view.setCurrentView(facility, view);
       }
       handleFacilityLoaded(res);
     }
