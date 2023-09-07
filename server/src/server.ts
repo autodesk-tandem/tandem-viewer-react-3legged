@@ -37,18 +37,21 @@ app.get('/api/auth/callback', async (req, res) => {
     process.env.APS_CALLBACK_URL,
     req.query.code);
 
-  console.debug(`${token.access_token}`);
-  const now = new Date();
-
-  req.session.expires_at = now.setSeconds(now.getSeconds() + token.expires_in);
-  req.session.access_token = token.access_token;
-  req.session.refresh_token = token.refresh_token;
+  // save token data into session
+  saveSessionData(req, token);
   res.redirect(`http://localhost:3000`);
 });
 
-app.post('/api/auth/token', (req, res) => {
+app.post('/api/auth/token', async (req, res) => {
   const timeDiff = Math.trunc((req.session.expires_at - Date.now()) / 1000);
 
+  if (timeDiff < 10) {
+    const token = await refreshToken(process.env.APS_KEY,
+      process.env.APS_SECRET,
+      req.session.refresh_token);
+
+    saveSessionData(req, token);
+  }
   res.status(200).json({
     access_token: req.session.access_token,
     expires_in: timeDiff
@@ -108,6 +111,36 @@ async function getUserProfile(token: string) {
   const data = await response.json();
 
   return data;
+}
+
+async function refreshToken(clientID: string, clientSecret: string, refreshToken: string) {
+  const auth = Buffer.from(`${clientID}:${clientSecret}`).toString('base64');
+  const options = new URLSearchParams({
+    'grant_type': 'refresh_token',
+    'refresh_token': refreshToken
+  });
+  const response = await fetch(`https://developer.api.autodesk.com/authentication/v2/token`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${auth}`
+      },
+      body: options
+    });
+
+  console.debug(`refresh token: ${response.status}`);
+  const result = await response.json();
+
+  return result;
+}
+
+function saveSessionData(req: any, token: any) {
+  const now = new Date(Date.now() + + token.expires_in * 1000);
+
+  req.session.expires_at = now.getTime();
+  req.session.access_token = token.access_token;
+  req.session.refresh_token = token.refresh_token;
 }
 
 // start server
