@@ -31,7 +31,6 @@ export async function initializeViewer(): Promise<void> {
       useCookie: false
     };
 
-    // @ts-ignore
     Autodesk.Viewing.Initializer(options, () => {
       resolve();
     });

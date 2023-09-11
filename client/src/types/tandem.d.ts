@@ -20,7 +20,7 @@ declare namespace Autodesk {
       class DtApp {
         constructor(options?: any);
 
-        view: DtViews;
+        views: DtViews;
 
         displayFacility(facility: DtFacility, visibleModelsForView: Set<string> | undefined, viewer: Autodesk.Viewing.GuiViewer3D, forceReload?: boolean): Promise<DtFacility>;
         getUsersFacilities(): Promise<DtFacility[]>;
@@ -32,8 +32,7 @@ declare namespace Autodesk {
         };
         twinId: string;
 
-        getSavedViewsList(): Promise<any[]>;
-
+        getSavedViewsList(): Promise<CompactView[]>;
       }
 
       class DtViews {
