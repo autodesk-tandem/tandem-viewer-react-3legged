@@ -6,7 +6,7 @@ import './App.css'
 function App() {
   const [ isLoggedIn, setIsLoggedIn ] = useState<boolean>(false);
   const [ isViewerInitialized, setIsViewerInitialized ] = useState<boolean>(false);
-  const [ facilityList, setFacilityList ] = useState<Autodesk.Viewing.Private.DtFacility[]>([]);
+  const [ facilityList, setFacilityList ] = useState<Autodesk.Tandem.DtFacility[]>([]);
   const [ selectedFacilityId, setSelectedFacilityId ] = useState<string>();
   const [ selectedFacility, setSelectedFacility ] = useState<any>(null);
 
@@ -41,7 +41,7 @@ function App() {
 
   // when app is initialized get list of available facilities for current user
   // and remember id of first facility
-  const onAppInitialized = async (app: Autodesk.Viewing.Private.DtApp) => {
+  const onAppInitialized = async (app: Autodesk.Tandem.DtApp) => {
     console.log(`app initialized`);
     const result = await app.getUsersFacilities();
 
