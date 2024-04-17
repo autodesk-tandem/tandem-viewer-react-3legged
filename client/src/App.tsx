@@ -43,8 +43,12 @@ function App() {
   // and remember id of first facility
   const onAppInitialized = async (app: Autodesk.Tandem.DtApp) => {
     console.log(`app initialized`);
-    const result = await app.getUsersFacilities();
+    const userFacilities = await app.getUsersFacilities();
+    const teamFacilities = await app.getCurrentTeamsFacilities();
+    const result = [];
 
+    result.push(...userFacilities);
+    result.push(...teamFacilities);
     setFacilityList(result);
     if (result.length > 0) {
       setSelectedFacilityId(result[0].twinId);
