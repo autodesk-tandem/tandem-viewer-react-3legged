@@ -28,6 +28,8 @@ declare namespace Autodesk {
     }
 
     class DtFacility {
+      app: DtApp;
+      facetsManager: FacetsManager;
       modelsList: DtModel[];
       settings: {
         dateCreated: string;
@@ -56,8 +58,15 @@ declare namespace Autodesk {
     }
 
     class DtViews {
+      currentView: CompactView;
+
       fetchFacilityViews(facility: DtFacility): Promise<CompactView[]>;
       setCurrentView(facility: DtFacility, view: View): Promise<void>;
+    }
+
+    class FacetsManager {
+      applyTheme(facetId: string, colorMap: { [key: string]: any; }): void;
+      generateColorMap(colorMaps: { [key: string]: any; }): { [key: string]: any;};
     }
   }
 }
