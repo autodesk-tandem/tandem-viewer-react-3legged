@@ -78,7 +78,6 @@ const Viewer = (props: ViewerProps) => {
       let models = undefined;
       
       if (view) {
-        // @ts-ignore
         models = new Set<string>(view?.facets?.filters?.models);
       }
       
@@ -96,7 +95,7 @@ const Viewer = (props: ViewerProps) => {
     if (appRef.current && viewerRef.current) {
       loadFacility(appRef.current, viewerRef.current, facility);
     }
-  }, [ facility] );
+  }, [ facility ] );
 
   return (
     <div className="viewer" ref={viewerDOMRef}></div>
