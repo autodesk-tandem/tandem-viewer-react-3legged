@@ -4,6 +4,7 @@ import './Viewer.css';
 type ViewerProps = {
   facility?: Autodesk.Tandem.DtFacility;
   onAppInitialized?: (app: Autodesk.Tandem.DtApp) => void;
+  onFacetsLoaded?: (event: any) => void;
   onFacilityLoaded?: (facility: Autodesk.Tandem.DtFacility) => void;
   onViewerInitialized?: (viewer: Autodesk.Viewing.GuiViewer3D) => void;
   onViewerUninitialized?: (viewer: Autodesk.Viewing.GuiViewer3D) => void;
@@ -20,6 +21,12 @@ const Viewer = (props: ViewerProps) => {
   const handleAppInitialized = (app: Autodesk.Tandem.DtApp) => {
     if (props.onAppInitialized) {
       props.onAppInitialized(app);
+    }
+  };
+
+  const handleFacetsLoaded = (model: Autodesk.Tandem.DtModel) => {
+    if (props.onFacetsLoaded) {
+      props.onFacetsLoaded(model);
     }
   };
 
@@ -63,6 +70,10 @@ const Viewer = (props: ViewerProps) => {
       const app = new Autodesk.Tandem.DtApp();
       
       appRef.current = app;
+      app.addEventListener(Autodesk.Tandem.DT_FACETS_LOADED, (e) => {
+        handleFacetsLoaded(e.model);
+      });
+      
       handleAppInitialized(app);
     }
   }, []);
