@@ -24,6 +24,7 @@ declare namespace Autodesk {
       displayFacility(facility: DtFacility, visibleModelsForView: Set<string> | undefined, viewer: Autodesk.Viewing.GuiViewer3D, forceReload?: boolean): Promise<DtFacility>;
       getCurrentTeamsFacilities(): Promise<DtFacility[]>;
       getFacility(urn: string): Promise<DtFacility>;
+      getTeams(): Promise<DtTeam[]>;
       getUsersFacilities(): Promise<DtFacility[]>;
     }
 
@@ -55,6 +56,15 @@ declare namespace Autodesk {
       getPropertiesDt(dbIds: number[], options?: { classificationId?: string; history: boolean?; includeDeleted?: boolean; intersect?: boolean; wantTimeSeries?: boolean; }): Promise<any[]>;
       getRooms(): Promise<{ [key: string]: any; }>;
       getTaggedAssets(): Promise<{ cols: any[]; rows: any[]; }>;
+    }
+
+    class DtTeam {
+      id: string;
+      name: string;
+      owner: string;
+      facilities: DtFacility[];
+
+      getFacilities(): Promise<DtFacility[]>;
     }
 
     class DtViews {
