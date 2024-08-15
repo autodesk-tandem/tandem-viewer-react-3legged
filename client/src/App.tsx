@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { getUserProfile, initializeViewer } from './utils/viewerUtils';
+import TeamList from './components/TeamList';
+import FacilityList from './components/FacilityList';
 import Viewer from './components/Viewer';
 import './App.css'
 
 function App() {
   const [ isLoggedIn, setIsLoggedIn ] = useState<boolean>(false);
   const [ isViewerInitialized, setIsViewerInitialized ] = useState<boolean>(false);
+  const [ teamList, setTeamList ] = useState<Autodesk.Tandem.DtTeam[]>([]);
   const [ facilityList, setFacilityList ] = useState<Autodesk.Tandem.DtFacility[]>([]);
   const [ selectedFacilityId, setSelectedFacilityId ] = useState<string>();
+  const [ selectedTeam, setSelectedTeam ] = useState<any>(null);
   const [ selectedFacility, setSelectedFacility ] = useState<any>(null);
+
+  const appRef = useRef<Autodesk.Tandem.DtApp | null>(null);
 
   const onLogin = async () => {
     const response = await fetch('/api/auth/url');
@@ -22,9 +28,16 @@ function App() {
     window.location.replace(`https://developer.api.autodesk.com/authentication/v2/logout?post_logout_redirect_uri=http://localhost:3000?logout`);
   };
 
+  const onTeamChange = async (team: Autodesk.Tandem.DtTeam) => {
+    if (!team.facilities) {
+      await team.getFacilities();
+    }
+    setSelectedTeam(team);
+  };
+
   // remember id of selected facility when user changes selection
-  const onFacilityChange = (event: any) => {
-    setSelectedFacilityId(event.target.value);
+  const onFacilityChange = (facility: Autodesk.Tandem.DtFacility) => {
+    setSelectedFacilityId(facility.twinId);
   };
 
   // set selected facility based on selected id
@@ -41,17 +54,32 @@ function App() {
 
   // when app is initialized get list of available facilities for current user
   // and remember id of first facility
+  // when app is initialized get list of teams 
   const onAppInitialized = async (app: Autodesk.Tandem.DtApp) => {
     console.log(`app initialized`);
-    const userFacilities = await app.getUsersFacilities();
-    const teamFacilities = await app.getCurrentTeamsFacilities();
-    const result = [];
+    appRef.current = app;
+    const teams = await app.getTeams();
+    const sortedTeams = teams.sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
 
-    result.push(...userFacilities);
-    result.push(...teamFacilities);
-    setFacilityList(result);
-    if (result.length > 0) {
-      setSelectedFacilityId(result[0].twinId);
+    const sharedFacilities = await app.getUsersFacilities();
+
+    if (sharedFacilities?.length > 0) {
+      const dummyTeam = {
+        id: 'shared',
+        name: '** Shared directly **',
+        owner: '',
+        facilities: sharedFacilities
+      };
+
+      // @ts-ignore
+      sortedTeams.unshift(dummyTeam);
+    }
+
+    setTeamList(sortedTeams);
+  };
+
     }
   };
 
@@ -83,18 +111,13 @@ function App() {
     });
   }, [ isLoggedIn ]);
 
-  const facilityItems = facilityList?.map((item) => {
-    console.log(item);
-    let name = item.settings.props['Identity Data']['Project Name'];
-
-    if (name.length === 0) {
-      // if project name is empty then use building name
-      name = item.settings.props['Identity Data']['Building Name'];
+  // called when team selection changes
+  useEffect(() => {
+    if (!selectedTeam) {
+      return;
     }
-    return (
-      <option key={item.twinId} value={item.twinId}>{name}</option>
-    );
-  });
+    setFacilityList(selectedTeam.facilities);
+  }, [ selectedTeam ]);
 
   return (
     <React.Fragment>
@@ -108,8 +131,12 @@ function App() {
       </div>
       <div className="main">
         <div className="left">
-          <select disabled={!isLoggedIn}
-            onChange={onFacilityChange}>{facilityItems}</select>
+          <TeamList
+            teams={teamList}
+            onTeamChange={onTeamChange} />
+          <FacilityList
+            facilities={facilityList}
+            onFacilityChange={onFacilityChange} />
           <button onClick={onLoad}>Load</button>
         </div>
         <div className="right">
