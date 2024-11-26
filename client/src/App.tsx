@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { getUserProfile, initializeViewer } from './utils/viewerUtils';
 import TeamList from './components/TeamList';
 import FacilityList from './components/FacilityList';
+import ViewList from './components/ViewList';
 import Viewer from './components/Viewer';
 import './App.css'
 
@@ -11,8 +12,12 @@ function App() {
   const [ teamList, setTeamList ] = useState<Autodesk.Tandem.DtTeam[]>([]);
   const [ facilityList, setFacilityList ] = useState<Autodesk.Tandem.DtFacility[]>([]);
   const [ selectedFacilityId, setSelectedFacilityId ] = useState<string>();
+  const [ selectedViewId, setSelectedViewId ] = useState<string>();
   const [ selectedTeam, setSelectedTeam ] = useState<any>(null);
+
   const [ selectedFacility, setSelectedFacility ] = useState<any>(null);
+  const [ selectedView, setSelectedView ] = useState<any>(null);
+  const [ viewList, setViewList ] = useState<any[]>([]);
 
   const appRef = useRef<Autodesk.Tandem.DtApp | null>(null);
 
@@ -40,6 +45,11 @@ function App() {
     setSelectedFacilityId(facility.twinId);
   };
 
+  // remember id of selected view when user changes selection
+  const onViewChange = (view: Autodesk.Tandem.CompactView) => {
+    setSelectedViewId(view.id);
+  };
+
   // set selected facility based on selected id
   const onLoad = () => {
     const facility = facilityList?.find(f => {
@@ -49,11 +59,14 @@ function App() {
     if (!facility) {
       return;
     }
+    const view = viewList?.find(v => {
+      return v.id === selectedViewId;
+    });
+
     setSelectedFacility(facility);
+    setSelectedView(view);
   };
 
-  // when app is initialized get list of available facilities for current user
-  // and remember id of first facility
   // when app is initialized get list of teams 
   const onAppInitialized = async (app: Autodesk.Tandem.DtApp) => {
     console.log(`app initialized`);
@@ -78,9 +91,6 @@ function App() {
     }
 
     setTeamList(sortedTeams);
-  };
-
-    }
   };
 
   // called when component is mounted
@@ -119,6 +129,26 @@ function App() {
     setFacilityList(selectedTeam.facilities);
   }, [ selectedTeam ]);
 
+  // called when facility selection changes
+  useEffect(() => {
+    const facility = facilityList?.find(f => {
+      return f.twinId === selectedFacilityId;
+    });
+
+    if (!facility) {
+      return;
+    }
+    facility.app.views.fetchFacilityViews(facility).then((views) => {
+      const sortedViews: any[] = views.sort((a, b) => {
+        if (a.default) {
+          return -1;
+        }
+        return a.viewName.localeCompare(b.viewName);
+      });
+      setViewList(sortedViews);
+    });
+  }, [ selectedFacilityId ]);
+
   return (
     <React.Fragment>
       <div className="header">
@@ -137,6 +167,9 @@ function App() {
           <FacilityList
             facilities={facilityList}
             onFacilityChange={onFacilityChange} />
+          <ViewList
+            views={viewList}
+            onViewChange={onViewChange} />
           <button onClick={onLoad}>Load</button>
         </div>
         <div className="right">
@@ -144,7 +177,8 @@ function App() {
             <div className="viewer-container">
               <Viewer
                 onAppInitialized={onAppInitialized}
-                facility={selectedFacility} />
+                facility={selectedFacility}
+                view={selectedView} />
             </div>
           }
         </div>
