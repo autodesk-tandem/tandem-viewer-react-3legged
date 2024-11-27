@@ -65,7 +65,7 @@ declare namespace Autodesk {
       getData(): any;
       getElementIdsFromDbIds(dbIds: number[]): Promise<string[]>;
       getLevels(): Promise<{ [key: string]: any; }>;
-      getPropertiesDt(dbIds: number[], options?: { classificationId?: string; history: boolean?; includeDeleted?: boolean; intersect?: boolean; wantTimeSeries?: boolean; }): Promise<any[]>;
+      getPropertiesDt(dbIds: number[], options?: { classificationId?: string; history?: boolean; includeDeleted?: boolean; intersect?: boolean; wantTimeSeries?: boolean; }): Promise<any[]>;
       getRooms(): Promise<{ [key: string]: any; }>;
       getTaggedAssets(): Promise<{ cols: any[]; rows: any[]; }>;
       getVisibleDbIds(): number[];
