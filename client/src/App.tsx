@@ -6,7 +6,8 @@ import ViewList from './components/ViewList';
 import Viewer from './components/Viewer';
 import './App.css'
 
-function App() {
+
+const App = () => {
   const [ isLoggedIn, setIsLoggedIn ] = useState<boolean>(false);
   const [ isViewerInitialized, setIsViewerInitialized ] = useState<boolean>(false);
   const [ teamList, setTeamList ] = useState<Autodesk.Tandem.DtTeam[]>([]);
@@ -67,7 +68,7 @@ function App() {
     setSelectedView(view);
   };
 
-  // when app is initialized get list of teams 
+  // when app is initialized get list of teams
   const onAppInitialized = async (app: Autodesk.Tandem.DtApp) => {
     console.log(`app initialized`);
     appRef.current = app;
