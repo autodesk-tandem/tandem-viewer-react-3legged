@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { getUserProfile, initializeViewer } from './utils/viewerUtils';
 import TeamList from './components/TeamList';
 import FacilityList from './components/FacilityList';
@@ -22,24 +22,24 @@ const App = () => {
 
   const appRef = useRef<Autodesk.Tandem.DtApp | null>(null);
 
-  const onLogin = async () => {
+  const onLogin = useCallback(async () => {
     const response = await fetch('/api/auth/url');
     const data = await response.json();
     
     console.log(data);
     window.location.replace(data?.url);
-  };
+  }, []);
 
-  const onLogout = () => {
+  const onLogout = useCallback(() => {
     window.location.replace(`https://developer.api.autodesk.com/authentication/v2/logout?post_logout_redirect_uri=http://localhost:3000?logout`);
-  };
+  }, []);
 
-  const onTeamChange = async (team: Autodesk.Tandem.DtTeam) => {
+  const onTeamChange = useCallback(async (team: Autodesk.Tandem.DtTeam) => {
     if (!team.facilities) {
       await team.getFacilities();
     }
     setSelectedTeam(team);
-  };
+  }, [ teamList ]);
 
   // remember id of selected facility when user changes selection
   const onFacilityChange = (facility: Autodesk.Tandem.DtFacility) => {
