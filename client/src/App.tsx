@@ -77,7 +77,7 @@ const App = () => {
       return a.name.localeCompare(b.name);
     });
 
-    const sharedFacilities = await app.getUsersFacilities();
+    const sharedFacilities = await app.getSharedFacilities();
 
     if (sharedFacilities?.length > 0) {
       const dummyTeam = {
