@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 // API endpoints
 app.get('/api/auth/url', (req, res) => {
-  const url = getAuthorizationURL(process.env.APS_KEY, process.env.APS_CALLBACK_URL,
+  const url = getAuthorizationURL(process.env.APS_CLIENT_ID, process.env.APS_CALLBACK_URL,
     [ 'data:read', 'user-profile:read', 'viewables:read']);
 
   res.status(200).json({
@@ -32,8 +32,8 @@ app.get('/api/auth/url', (req, res) => {
 
 app.get('/api/auth/callback', async (req, res) => {
   console.log(`callback`);
-  const token = await getToken(process.env.APS_KEY,
-    process.env.APS_SECRET,
+  const token = await getToken(process.env.APS_CLIENT_ID,
+    process.env.APS_CLIENT_SECRET,
     process.env.APS_CALLBACK_URL,
     req.query.code);
 
@@ -46,8 +46,8 @@ app.post('/api/auth/token', async (req, res) => {
   const timeDiff = Math.trunc((req.session.expires_at - Date.now()) / 1000);
 
   if (timeDiff < 10) {
-    const token = await refreshToken(process.env.APS_KEY,
-      process.env.APS_SECRET,
+    const token = await refreshToken(process.env.APS_CLIENT_ID,
+      process.env.APS_CLIENT_SECRET,
       req.session.refresh_token);
 
     saveSessionData(req, token);
