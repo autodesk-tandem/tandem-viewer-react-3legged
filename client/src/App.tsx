@@ -94,6 +94,18 @@ const App = () => {
     setTeamList(sortedTeams);
   };
 
+  const onViewerInitialized = () => {
+    console.log(`viewer initialized`);
+  };
+
+  const onFacilityLoaded = async (facility: Autodesk.Tandem.DtFacility) => {
+    console.log(`facility loaded: ${facility.twinId}`);
+  };
+
+  const onViewChanged = async (view: Autodesk.Tandem.CompactView) => {
+    console.log(`view changed: ${view.id}`);
+  };
+
   // called when component is mounted
   useEffect(() => {
     const queryParams = new URLSearchParams(document.location.search);
@@ -178,6 +190,9 @@ const App = () => {
             <div className="viewer-container">
               <Viewer
                 onAppInitialized={onAppInitialized}
+                onCurrentViewChanged={onViewChanged}
+                onFacilityLoaded={onFacilityLoaded}
+                onViewerInitialized={onViewerInitialized}
                 facility={selectedFacility}
                 view={selectedView} />
             </div>
