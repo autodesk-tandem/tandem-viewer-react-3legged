@@ -6,7 +6,7 @@ import session from 'express-session';
 const app = express();
 
 app.use(session({
-  secret: 'IX80FvZ2gz',
+  secret: process.env.SESSION_SECRET,
   cookie: {
     path: '/',
     httpOnly: true,
