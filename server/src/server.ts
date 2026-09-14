@@ -33,8 +33,8 @@ app.use(cookieParser());
 
 // API endpoints
 app.get('/api/auth/url', (req, res) => {
-    [ 'data:read', 'user-profile:read', 'viewables:read']);
   const url = getAuthorizationURL(APS_CLIENT_ID, APS_CALLBACK_URL,
+    [ 'data:read', 'viewables:read', 'user-profile:read', 'profapi:img-profile-read']);
 
   res.status(200).json({
     url: url
