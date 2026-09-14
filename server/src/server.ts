@@ -3,6 +3,14 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 
+declare module 'express-session' {
+  interface SessionData {
+    expires_at: number;
+    access_token: string;
+    refresh_token: string;
+  }
+};
+
 const { SESSION_SECRET, APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL } = process.env as {
   SESSION_SECRET: string;
   APS_CLIENT_ID: string;
@@ -34,7 +42,7 @@ app.use(cookieParser());
 // API endpoints
 app.get('/api/auth/url', (req, res) => {
   const url = getAuthorizationURL(APS_CLIENT_ID, APS_CALLBACK_URL,
-    [ 'data:read', 'viewables:read', 'user-profile:read', 'profapi:img-profile-read']);
+    [ 'data:read', 'viewables:read', 'user-profile:read', 'profapi:img-profile:read']);
 
   res.status(200).json({
     url: url
@@ -54,6 +62,9 @@ app.get('/api/auth/callback', async (req, res) => {
 });
 
 app.post('/api/auth/token', async (req, res) => {
+  if (!req.session?.expires_at || !req.session?.access_token || !req.session?.refresh_token) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
   const timeDiff = Math.trunc((req.session.expires_at - Date.now()) / 1000);
 
   if (timeDiff < 10) {

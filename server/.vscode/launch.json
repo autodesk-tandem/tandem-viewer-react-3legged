@@ -13,7 +13,7 @@
             "outFiles": [
               "${workspaceFolder}/src/**/*.js"
             ],
-            "envFile": "${workspaceFolder}\\.env"
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
