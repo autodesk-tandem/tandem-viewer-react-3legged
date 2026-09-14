@@ -3,10 +3,21 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 
+const { SESSION_SECRET, APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL } = process.env as {
+  SESSION_SECRET: string;
+  APS_CLIENT_ID: string;
+  APS_CLIENT_SECRET: string;
+  APS_CALLBACK_URL: string;
+};
+
+if (!APS_CLIENT_ID || !APS_CLIENT_SECRET || !APS_CALLBACK_URL || !SESSION_SECRET) {
+    console.warn('Missing some of the following env. variables:');
+    console.warn('APS_CLIENT_ID, APS_CLIENT_SECRET, APS_CALLBACK_URL, SESSION_SECRET');
+}
 const app = express();
 
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: SESSION_SECRET,
   cookie: {
     path: '/',
     httpOnly: true,
@@ -22,8 +33,8 @@ app.use(cookieParser());
 
 // API endpoints
 app.get('/api/auth/url', (req, res) => {
-  const url = getAuthorizationURL(process.env.APS_CLIENT_ID, process.env.APS_CALLBACK_URL,
     [ 'data:read', 'user-profile:read', 'viewables:read']);
+  const url = getAuthorizationURL(APS_CLIENT_ID, APS_CALLBACK_URL,
 
   res.status(200).json({
     url: url
@@ -32,10 +43,10 @@ app.get('/api/auth/url', (req, res) => {
 
 app.get('/api/auth/callback', async (req, res) => {
   console.log(`callback`);
-  const token = await getToken(process.env.APS_CLIENT_ID,
-    process.env.APS_CLIENT_SECRET,
-    process.env.APS_CALLBACK_URL,
-    req.query.code);
+  const token = await getToken(APS_CLIENT_ID,
+    APS_CLIENT_SECRET,
+    APS_CALLBACK_URL,
+    req.query.code as string);
 
   // save token data into session
   saveSessionData(req, token);
@@ -46,8 +57,8 @@ app.post('/api/auth/token', async (req, res) => {
   const timeDiff = Math.trunc((req.session.expires_at - Date.now()) / 1000);
 
   if (timeDiff < 10) {
-    const token = await refreshToken(process.env.APS_CLIENT_ID,
-      process.env.APS_CLIENT_SECRET,
+    const token = await refreshToken(APS_CLIENT_ID,
+      APS_CLIENT_SECRET,
       req.session.refresh_token);
 
     saveSessionData(req, token);
