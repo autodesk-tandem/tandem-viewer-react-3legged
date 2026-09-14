@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@types/forge-viewer": "^7.69.5",
+    "@types/node": "^22.20.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
