@@ -25,7 +25,7 @@ app.use(session({
   },
   name: 'tandem.react.sample',
   resave: false,
-  saveUnitialized: false
+  saveUninitialized: false
 }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '1mb'}));
 app.use(bodyParser.json({ limit: '1mb'}));
