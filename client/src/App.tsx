@@ -169,8 +169,8 @@ const App = () => {
         <div className="header-icon"></div>
         <div className="header-title">Tandem React Sample</div>
         <div className="header-login">
-          <button onClick={onLogin}>Login</button>
-          <button onClick={onLogout}>Logout</button>
+          <button onClick={onLogin} disabled={isLoggedIn}>Login</button>
+          <button onClick={onLogout} disabled={!isLoggedIn}>Logout</button>
         </div>
       </div>
       <div className="main">
