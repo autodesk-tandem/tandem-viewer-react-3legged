@@ -26,6 +26,9 @@ declare namespace Autodesk {
       constructor(options?: any);
 
       currentFacility: DtFacility;
+      loadContext?: {
+        headers: Record<string, string>;
+      };
       views: DtViews;
 
       addEventListener(event: string, callback: (event: any) => void): void;
@@ -36,6 +39,10 @@ declare namespace Autodesk {
       getSharedFacilities(forceReload?: boolean): Promise<DtFacility[]>;
       getTeams(): Promise<DtTeam[]>;
     }
+
+    const endpoint: {
+      HTTP_REQUEST_HEADERS: Record<string, string>;
+    };
 
     class DtFacility {
       app: DtApp;
@@ -142,4 +149,8 @@ declare namespace Autodesk {
 
     const NullScreenModeDelegate: any;
   }
+}
+
+interface Window {
+  DT_APP: Autodesk.Tandem.DtApp;
 }
