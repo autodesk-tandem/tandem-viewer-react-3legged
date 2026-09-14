@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { getUserProfile, initializeViewer } from './utils/viewerUtils';
+import { useAuthToken } from './hooks/useAuthToken';
+import { getUserProfile } from './utils/authUtils';
+import { initializeViewer } from './utils/viewerUtils';
 import TeamList from './components/TeamList';
 import FacilityList from './components/FacilityList';
 import ViewList from './components/ViewList';
@@ -15,23 +17,35 @@ const App = () => {
   const [ selectedFacilityId, setSelectedFacilityId ] = useState<string>();
   const [ selectedViewId, setSelectedViewId ] = useState<string>();
   const [ selectedTeam, setSelectedTeam ] = useState<any>(null);
-
   const [ selectedFacility, setSelectedFacility ] = useState<any>(null);
   const [ selectedView, setSelectedView ] = useState<any>(null);
   const [ viewList, setViewList ] = useState<any[]>([]);
-
+  
+  const token = useAuthToken(isLoggedIn);
   const appRef = useRef<Autodesk.Tandem.DtApp | null>(null);
 
   const onLogin = useCallback(async () => {
-    const response = await fetch('/api/auth/url');
-    const data = await response.json();
-    
-    console.log(data);
-    window.location.replace(data?.url);
+    try {
+      const response = await fetch('/api/auth/url');
+
+      if (!response.ok) {
+        console.error('Failed to fetch auth URL');
+        return;
+      }
+      const data = await response.json();
+      
+      if (data?.url) {
+        window.location.replace(data.url);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+    }
   }, []);
 
   const onLogout = useCallback(() => {
-    window.location.replace(`https://developer.api.autodesk.com/authentication/v2/logout?post_logout_redirect_uri=http://localhost:3000?logout`);
+    const redirectUri = encodeURIComponent(`${window.location.origin}?logout`);
+
+    window.location.replace(`https://developer.api.autodesk.com/authentication/v2/logout?post_logout_redirect_uri=${redirectUri}`);
   }, []);
 
   const onTeamChange = useCallback(async (team: Autodesk.Tandem.DtTeam) => {
@@ -90,20 +104,7 @@ const App = () => {
       // @ts-ignore
       sortedTeams.unshift(dummyTeam);
     }
-
     setTeamList(sortedTeams);
-  };
-
-  const onViewerInitialized = () => {
-    console.log(`viewer initialized`);
-  };
-
-  const onFacilityLoaded = async (facility: Autodesk.Tandem.DtFacility) => {
-    console.log(`facility loaded: ${facility.twinId}`);
-  };
-
-  const onViewChanged = async (view: Autodesk.Tandem.CompactView) => {
-    console.log(`view changed: ${view.id}`);
   };
 
   // called when component is mounted
@@ -113,26 +114,26 @@ const App = () => {
     // handle case from logout redirect
     if (queryParams.has('logout')) {
       setIsLoggedIn(false);
+      window.history.replaceState({}, document.title, window.location.pathname);
     } else {
       // otherwise check if there is active user session
-      getUserProfile().then((data) => {
+      getUserProfile().then((data: any) => {
         setIsLoggedIn(data && data.name ? true : false);
-      }).catch((err) => {
+      }).catch((err: any) => {
         console.error(err);
-        setIsLoggedIn(false);
       });
     }
   }, []);
 
-  // called when logged-in user changed
   useEffect(() => {
-    if (!isLoggedIn) {
-      return;
+    if (token && !isViewerInitialized) {
+      initializeViewer().then(() => {
+        setIsViewerInitialized(true);
+      });
+    } else if (!token) {
+      setIsViewerInitialized(false);
     }
-    initializeViewer().then(() => {
-      setIsViewerInitialized(true);
-    });
-  }, [ isLoggedIn ]);
+  }, [ token, isViewerInitialized ]);
 
   // called when team selection changes
   useEffect(() => {
@@ -189,12 +190,10 @@ const App = () => {
           {isViewerInitialized &&
             <div className="viewer-container">
               <Viewer
-                onAppInitialized={onAppInitialized}
-                onCurrentViewChanged={onViewChanged}
-                onFacilityLoaded={onFacilityLoaded}
-                onViewerInitialized={onViewerInitialized}
+                token={token}
                 facility={selectedFacility}
-                view={selectedView} />
+                view={selectedView}
+                onAppInitialized={onAppInitialized} />
             </div>
           }
         </div>
