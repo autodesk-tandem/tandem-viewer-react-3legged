@@ -26,6 +26,9 @@ declare namespace Autodesk {
       constructor(options?: any);
 
       currentFacility: DtFacility;
+      loadContext?: {
+        headers: Record<string, string>;
+      };
       views: DtViews;
 
       addEventListener(event: string, callback: (event: any) => void): void;
@@ -36,6 +39,10 @@ declare namespace Autodesk {
       getSharedFacilities(forceReload?: boolean): Promise<DtFacility[]>;
       getTeams(): Promise<DtTeam[]>;
     }
+
+    const endpoint: {
+      HTTP_REQUEST_HEADERS: Record<string, string>;
+    };
 
     class DtFacility {
       app: DtApp;
@@ -49,7 +56,7 @@ declare namespace Autodesk {
         template: any;
       };
       twinId: string;
-      viewer: Autodesk.Viewing.GuiViewer3D;
+      viewer: Autodesk.Tandem.DtGuiViewer3D;
 
       getModels(skipDefault?: boolean): DtModel[];
       getSavedViewsList(): Promise<CompactView[]>;
@@ -124,5 +131,26 @@ declare namespace Autodesk {
       generateColorMap(colorMaps: { [key: string]: any; }): { [key: string]: any;};
       updateFacets(urn?: string, skipIsolationUpdate?: boolean, visile?: boolean): any[];
     }
+
+    class DtGuiViewer3D {
+      constructor(container: HTMLElement, options?: any);
+
+      start(): any;
+      addEventListener(event: string, callback: (event: any) => void, options?: any): void;
+    }
+
+    function Initializer(options: any, callback: () => void): void;
   }
+
+  namespace Viewing {
+     // runtime constants
+    const VIEWER_INITIALIZED: string;
+    const VIEWER_UNINITIALIZED: string;
+
+    const NullScreenModeDelegate: any;
+  }
+}
+
+interface Window {
+  DT_APP: Autodesk.Tandem.DtApp;
 }
